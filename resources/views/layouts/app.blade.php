@@ -9,6 +9,7 @@ $level = Session::get('level');
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Canteen App</title>
     
@@ -51,16 +52,16 @@ $level = Session::get('level');
                 </li>
                 @endif
                 @if(in_array($level, ['admin', 'waiter']))
-                <li>
-                    <a href="#">
+                <li class="{{ $page == 'Pesanan' ? $active : '' }}">
+                    <a href="{{ route('order.index') }}">
                         <i class="fa fa-shopping-cart sidebar-fa"></i>Pesanan
                     </a>
                 </li>
                 @endif
                 @if(in_array($level, ['admin']))
-                <li>
-                    <a href="#">
-                        <i class="fa fa-list sidebar-fa"></i>Menu
+                <li class="{{ $page == 'Menu Kantin' ? $active : '' }}">
+                    <a href="{{ route('canteen-menu.index') }}">
+                        <i class="fas fa-hamburger sidebar-fa"></i>Menu Kantin
                     </a>
                 </li>
                 <li class="{{ $page == 'Meja' ? $active : '' }}">
@@ -157,11 +158,97 @@ $level = Session::get('level');
             });
 
             $('.data-table').DataTable();
+            $('.select').select2();
         });
         $(function () {
             $('body').hide();
             $('body').removeClass('d-none');
             $('body').fadeIn(750);
+        });
+        function show_loading(){
+            $('.loading-overlay').hide();
+            $('.loading-overlay').removeClass('d-none');
+            $('.loading-overlay').fadeIn('slow');
+        }
+        function hide_loading(){
+            $('.loading-overlay').fadeOut('slow', function(){
+                $('.loading-overlay').hide();
+                $('.loading-overlay').addClass('d-none');
+            });
+        }
+
+        function request_ajax(id){
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                type: "post",
+                url: "{{ route('order.done') }}",
+                data: {id: id},
+                dataType: "json",
+                success: function (response) {
+                    ordered_table($('#meja').val());
+                }
+            });
+            hide_loading();
+        }
+        function ordered_table(meja){
+            $.ajax({
+                type: "get",
+                url: "{{ route('order.get.table') }}",
+                data: "meja="+meja,
+                dataType: "json",
+                success: function (data) {
+                    $('.order-table-data').html('');
+                    data.forEach(d => {
+                        var openTag = '<tr>'
+                        var template = '<td scope="row">'+d.name+'</td><td>'+d.quantity+'</td><td>'+d.notes+'</td><td>'+d.status+'</td>';
+                        var closeTag = '</tr>'
+                        if (d.status == "proses") {
+                            template += '<td><button class="btn btn-success btn-sm order-done" value="'+ d.id +'"><i class="fa fa-check"></i></button></td>';
+                        }
+                        $('.order-table-data').append(openTag + template + closeTag);
+                    });
+                    $('.order-done').click(function () { 
+                        show_loading();
+                        var id = $(this).val();
+                        request_ajax(id);
+                    });
+                }
+            });
+            hide_loading();
+        };
+
+        $('#meja').change(function () { 
+            show_loading();
+            var meja = $(this).val();
+            ordered_table(meja);
+        });
+
+        $('#btn_tambah_order').click(function () { 
+            show_loading();
+            var meja = $('#meja').val();
+            var menu = $('#menu').val();
+            var kuantitas = $('#kuantitas').val();
+            var catatan = $('#catatan').val();
+            var data = {meja: meja, menu: menu, kuantitas: kuantitas, catatan: catatan}
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                type: "post",
+                url: "{{ route('order.store') }}",
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                    ordered_table(response.meja);
+                }
+            });
+            hide_loading();
         });
     </script>
 </body>

@@ -17198,6 +17198,26 @@ body.login {
   background-size: cover;
 }
 
+.loading-overlay {
+  position: absolute;
+  z-index: 999;
+  margin: 0%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #010101;
+  opacity: 0.6;
+}
+
+.loading-overlay .loading {
+  position: absolute;
+  z-index: 9999;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .login-overlay {
   position: fixed;
   z-index: 999;

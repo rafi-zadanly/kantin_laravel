@@ -14,4 +14,8 @@ Route::middleware('is.online')->group(function(){
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
     Route::resource('/table', 'TableController')->middleware('is.admin');
     Route::resource('/user', 'UserController')->middleware('is.admin');
+    Route::resource('/canteen-menu', 'CanteenMenuController')->middleware('is.admin');
+    Route::resource('/order', 'OrderController')->middleware('is.admin.waiter');
+    Route::get('/order/get/table', 'OrderController@get_table_ordered')->name('order.get.table')->middleware('is.admin.waiter');
+    Route::post('/order/done', 'OrderController@order_done')->name('order.done')->middleware('is.admin.waiter');
 });

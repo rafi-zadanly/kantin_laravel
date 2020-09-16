@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class CanteenMenu extends Model
 {
-    //
+    protected $fillable = ['name', 'price', 'status'];
 }

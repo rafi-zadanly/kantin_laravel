@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Rules\notInNull;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -75,7 +76,7 @@ class UserController extends Controller
             'nama_pengguna' => ['required', 'min:3', 'max:50'],
             'tingkat_pengguna' => new notInNull,
         ];
-        $request->hidden_nama_pengguna != $request->nama_pengguna ? 
+        Str::lower($request->hidden_nama_pengguna) != Str::lower($request->nama_pengguna) ? 
         $validate['nama_pengguna'] = ['required', 'min:3', 'max:50', 'unique:users,username'] : '';
         
         $request->kata_sandi != "" ?

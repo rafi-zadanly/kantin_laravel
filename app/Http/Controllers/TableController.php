@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Table;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class TableController extends Controller
@@ -63,7 +64,7 @@ class TableController extends Controller
     public function update(Request $request, Table $table)
     {
         $validate = [];
-        $request->hidden_nomor_meja != $request->nomor_meja ? $validate['nomor_meja'] = ['required', 'numeric', 'unique:tables,number'] : '';
+        Str::lower($request->hidden_nomor_meja) != Str::lower($request->nomor_meja) ? $validate['nomor_meja'] = ['required', 'numeric', 'unique:tables,number'] : '';
         $validator = Validator::make($request->all(), $validate, $this->message);
 
         if($validator->fails()){

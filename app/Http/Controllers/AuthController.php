@@ -20,6 +20,7 @@ class AuthController extends Controller
         $password = $request->kata_sandi;
         $data = User::where('username', $username)->first();
         if ($data && Hash::check($password, $data->password)) {
+            Session::put('user_id', $data->id);
             Session::put('name', $data->name);
             Session::put('username', $data->username);
             Session::put('level', $data->level);

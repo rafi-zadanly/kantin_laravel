@@ -6,7 +6,7 @@
     <div class="col-2">
         <div class="card card-dashboard shadow-sm">
             <div class="card-body text-right">
-                <h4 class="card-title">{{ $user->count() }}</h4>
+                <h4 class="card-title">{{ $users->count() }}</h4>
                 <p class="card-text h5 text-dark">Pengguna</p>
             </div>
         </div>
@@ -14,7 +14,7 @@
     <div class="col-2">
         <div class="card card-dashboard shadow-sm">
             <div class="card-body text-right">
-                <h4 class="card-title">23</h4>
+                <h4 class="card-title">{{ $menus->count() }}</h4>
                 <p class="card-text h5 text-dark">Menu</p>
             </div>
         </div>
@@ -22,7 +22,7 @@
     <div class="col-2">
         <div class="card card-dashboard shadow-sm">
             <div class="card-body text-right">
-                <h4 class="card-title">{{ $table->count() }}</h4>
+                <h4 class="card-title">{{ $tables->count() }}</h4>
                 <p class="card-text h5 text-dark">Meja</p>
             </div>
         </div>
@@ -30,7 +30,7 @@
     <div class="col-2">
         <div class="card card-dashboard shadow-sm">
             <div class="card-body text-right">
-                <h4 class="card-title">5</h4>
+                <h4 class="card-title">{{ $orders->count() }}</h4>
                 <p class="card-text h5 text-dark">Pesanan</p>
             </div>
         </div>
@@ -38,7 +38,7 @@
     <div class="col-2">
         <div class="card card-dashboard shadow-sm">
             <div class="card-body text-right">
-                <h4 class="card-title">15</h4>
+                <h4 class="card-title">{{ $transactions->count() }}</h4>
                 <p class="card-text h5 text-dark">Transaksi</p>
             </div>
         </div>

@@ -19,8 +19,9 @@ class CreateOrdersTable extends Migration
             $table->integer('user_id');
             $table->integer('canteen_menu_id');
             $table->integer('quantity');
-            $table->text('notes');
-            $table->string('status', 5);
+            $table->integer('total');
+            $table->text('notes')->nullable();
+            $table->string('status', 10);
             $table->timestamps();
         });
     }
