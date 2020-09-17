@@ -340,7 +340,8 @@ $level = Session::get('level');
                         $('#total-form').val('');
                         $('#cash-form').val('');
                         $('#change-form').val('');
-                        window.location.href = "{{ route('transaction.get.invoice') }}?id=" + response.id;
+                        // window.location.href = "{{ route('transaction.get.invoice') }}?id=" + response.id;
+                        window.open("{{ route('transaction.get.invoice') }}?id=" + response.id, '_blank');
                     }
                 });
             }

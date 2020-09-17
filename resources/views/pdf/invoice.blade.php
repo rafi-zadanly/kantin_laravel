@@ -8,7 +8,7 @@
 	<style type="text/css">
 		table tr td,
 		table tr th{
-			font-size: 9pt;
+			font-size: 10pt;
 			text-align: center;
 		}
 		p{
@@ -18,7 +18,8 @@
 	</style>
 	<center><h3>Starbhak Kantin</h3></center>
 	<hr class="bg-dark">
-	<p>Tanggal : {{ date('d-m-Y H:i:s') }}</p>
+	<p>Tanggal : {{ date('d-m-Y', strtotime($date)) }}</p>
+	<p>Jam : {{ date('H:i:s', strtotime($date)) }}</p>
 	<p>Kasir : {{ $user }}</p>
 	<br>
 
@@ -44,18 +45,18 @@
 			@endforeach
 			<tr>
 				<td colspan="2"></td>
-				<td>Total</td>
-				<td>Rp. {{number_format($total,0,',','.')}}</td>
+				<th>Uang</th>
+				<th>Rp. {{number_format($cash,0,',','.')}}</th>
 			</tr>
 			<tr>
 				<td colspan="2"></td>
-				<td>Uang</td>
-				<td>Rp. {{number_format($cash,0,',','.')}}</td>
+				<th>Total</th>
+				<th>Rp. {{number_format($total,0,',','.')}}</th>
 			</tr>
 			<tr>
 				<td colspan="2"></td>
-				<td>Kembali</td>
-				<td>Rp. {{number_format($change,0,',','.')}}</td>
+				<th>Kembali</th>
+				<th>Rp. {{number_format($change,0,',','.')}}</th>
 			</tr>
 		</tbody>
 	</table>

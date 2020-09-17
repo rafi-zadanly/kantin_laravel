@@ -38,7 +38,7 @@
                         <td>Meja {{ $tables[$i-1]->number }}</td>
                         <td>{{ $trs->total != NULL ? 'Rp. '. number_format($trs->total,0,',','.') : '' }}</td>
                         <td>{{ $trs->cash != NULL ? 'Rp. '. number_format($trs->cash,0,',','.') : '' }}</td>
-                        <td>{{ $trs->change != NULL ? 'Rp. '. number_format($trs->change,0,',','.') : '' }}</td>
+                        <td>{{ $trs->change != NULL || $trs->change == 0 ? 'Rp. '. number_format($trs->change,0,',','.') : '' }}</td>
                         <td class="text-center">
                             @if($trs->status == "paid")
                             <div class="bg-success rounded mr-3 w-100 text-light text-center">
@@ -51,29 +51,9 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <a href="{{ route('transaction.edit', ['transaction' => $trs->id]) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil-alt"></i></a>
-                            <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_{{ $i }}"><i class="fa fa-trash"></i></a>
+                            <a href="{{ route('transaction.show', ['transaction' => $trs->id]) }}" class="btn btn-primary btn-sm">Detil</a>
                         </td>
                     </tr>
-                    <div class="modal fade" id="delete_{{ $i }}" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Anda yakin untuk menghapus transaksi?</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-footer">
-                                    <form action="{{ route('transaction.destroy', ['transaction' => $trs->id]) }}" method="post">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary">Hapus</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     @php $i++ @endphp
                     @endforeach
                 </tbody>

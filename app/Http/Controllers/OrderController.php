@@ -153,6 +153,7 @@ class OrderController extends Controller
             ->where('transactions.table_id', $request->meja)
             ->where('transactions.status', 'unpaid')
             ->orderBy('orders.status', 'asc')
+            ->orderBy('created_at', 'desc')
             ->join('orders', 'transactions.id', '=', 'orders.transaction_id')
             ->join('canteen_menus', 'orders.canteen_menu_id', '=', 'canteen_menus.id')
             ->select('orders.*', 'canteen_menus.name')

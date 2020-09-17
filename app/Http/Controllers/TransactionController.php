@@ -127,7 +127,7 @@ class TransactionController extends Controller
     public function get_invoice(Request $request)
     {
         if ($request->id == NULL){
-            return redirect()->route('transaction.create');
+            return redirect()->back();
         }
         try {
             $user_id = Transaction::find($request->id)->user_id;
@@ -140,15 +140,17 @@ class TransactionController extends Controller
             $data = [
                 'orders' => $order,
                 'menu' => $menu,
+                'date' => $transaction->updated_at,
                 'total' => $transaction->total,
                 'cash' => $transaction->cash,
                 'change' => $transaction->change,
-                'user' => User::find($user_id)->first()->name,
+                'user' => User::find($user_id)->name,
             ];
             $pdf = PDF::loadView('pdf.invoice', $data);
-            return $pdf->download("invoice_$request->id.pdf");
+            return $pdf->stream();
+            // return $pdf->download("invoice_$request->id.pdf");
         } catch (\Throwable $th) {
-            return redirect()->route('transaction.create');
+            return redirect()->back();
         }
     }
 }
