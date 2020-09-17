@@ -13,7 +13,7 @@ class isAdminOrWaiter
             return $next($request);
         }
         
-        return redirect()->back()
+        return redirect()->route('dashboard')
             ->with('alert', 'Mohon maaf anda bukan admin atau waiter.')
             ->with('type', 'danger');
     }

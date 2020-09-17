@@ -78,9 +78,9 @@ class OrderController extends Controller
             $order->status = "proses";
 
             if($order->save()){
-                return response()->json(['status' => 'success', 'msg' => 'Berhasil menambahkan pesanan.', 'meja' => $request->meja]);
+                return response()->json(['status' => 'success', 'msg' => 'Berhasil menambahkan pesanan.']);
             }else{
-                return response()->json(['status' => 'failed', 'msg' => 'Gagal menambahkan pesanan.', 'meja' => $request->meja]);
+                return response()->json(['status' => 'failed', 'msg' => 'Gagal menambahkan pesanan.']);
             }
         }
         
@@ -164,6 +164,14 @@ class OrderController extends Controller
     public function order_done(Request $request){
         $update = ['status' => 'selesai'];
         if (Order::find($request->id)->update($update)) {
+            return response()->json(['status' => 'success']);
+        }else{
+            return response()->json(['status' => 'failed']);
+        }
+    }
+
+    public function order_cancel(Request $request){
+        if (Order::find($request->id)->delete()) {
             return response()->json(['status' => 'success']);
         }else{
             return response()->json(['status' => 'failed']);

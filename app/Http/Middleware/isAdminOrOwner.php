@@ -13,7 +13,7 @@ class isAdminOrOwner
             return $next($request);
         }
         
-        return redirect()->back()
+        return redirect()->route('dashboard')
             ->with('alert', 'Mohon maaf anda bukan admin atau owner.')
             ->with('type', 'danger');
     }

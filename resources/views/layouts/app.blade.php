@@ -45,8 +45,8 @@ $level = Session::get('level');
                     <a href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt sidebar-fa"></i>Dasbor</a>
                 </li>
                 @if(in_array($level, ['admin', 'kasir']))
-                <li>
-                    <a href="#">
+                <li class="{{ $page == 'Transaksi' ? $active : '' }}">
+                    <a href="{{ route('transaction.index') }}">
                         <i class="fas fa-money-bill-alt sidebar-fa"></i>Transaksi
                     </a>
                 </li>
@@ -78,7 +78,7 @@ $level = Session::get('level');
                 @if(in_array($level, ['admin', 'owner']))
                 <li>
                     <a href="#">
-                        <i class="fa fa-file sidebar-fa"></i>Laporan
+                        <i class="fa fa-book sidebar-fa"></i>Laporan
                     </a>
                 </li>
                 @endif
@@ -176,24 +176,8 @@ $level = Session::get('level');
                 $('.loading-overlay').addClass('d-none');
             });
         }
-
-        function request_ajax(id){
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                type: "post",
-                url: "{{ route('order.done') }}",
-                data: {id: id},
-                dataType: "json",
-                success: function (response) {
-                    ordered_table($('#meja').val());
-                }
-            });
-            hide_loading();
-        }
+        <?php if($page == "Pesanan"): ?>
+        // ORDER JS START
         function ordered_table(meja){
             $.ajax({
                 type: "get",
@@ -207,14 +191,52 @@ $level = Session::get('level');
                         var template = '<td scope="row">'+d.name+'</td><td>'+d.quantity+'</td><td>'+d.notes+'</td><td>'+d.status+'</td>';
                         var closeTag = '</tr>'
                         if (d.status == "proses") {
-                            template += '<td><button class="btn btn-success btn-sm order-done" value="'+ d.id +'"><i class="fa fa-check"></i></button></td>';
+                            template += '<td>';
+                            template += '<button class="btn btn-success btn-sm order-done" title="Selesai" value="'+ d.id +'"><i class="fa fa-check"></i></button>';
+                            template += '<button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button>';
+                            template += '</td>';
+                        }else{
+                            template += '<td><button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button></td>';
                         }
                         $('.order-table-data').append(openTag + template + closeTag);
                     });
                     $('.order-done').click(function () { 
                         show_loading();
                         var id = $(this).val();
-                        request_ajax(id);
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+                        $.ajax({
+                            type: "post",
+                            url: "{{ route('order.done') }}",
+                            data: {id: id},
+                            dataType: "json",
+                            success: function (response) {
+                                ordered_table($('#meja').val());
+                            }
+                        });
+                        hide_loading();
+                    });
+                    $('.order-cancel').click(function () {
+                        show_loading();
+                        var id = $(this).val();
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+                        $.ajax({
+                            type: "post",
+                            url: "{{ route('order.cancel') }}",
+                            data: {id: id},
+                            dataType: "json",
+                            success: function (response) {
+                                ordered_table($('#meja').val());
+                            }
+                        });
+                        hide_loading();
                     });
                 }
             });
@@ -245,11 +267,87 @@ $level = Session::get('level');
                 data: data,
                 dataType: "json",
                 success: function (response) {
-                    ordered_table(response.meja);
+                    ordered_table($('#meja').val());
                 }
             });
             hide_loading();
         });
+        // ORDER JS END
+        <?php endif; ?>
+        <?php if($page == "Transaksi"): ?>
+        // TRANSACTION JS START
+        var total = 0;
+        function transaction_table(meja){
+            $.ajax({
+                type: "get",
+                url: "{{ route('transaction.get.table') }}",
+                data: "meja="+meja,
+                dataType: "json",
+                success: function (data) {
+                    $('.transaction-table-data').html('');
+                    data.forEach(d => {
+                        var openTag = '<tr>'
+                        var template = '<td scope="row">'+d.name+'</td><td>'+d.price+'</td><td>'+d.quantity+'</td><td>'+(d.price * d.quantity)+'</td>';
+                        var closeTag = '</tr>'
+                        $('.transaction-table-data').append(openTag + template + closeTag);
+                        total = d.total;
+                        $('#total-form').val(total);
+                    });
+                }
+            });
+            hide_loading();
+        };
+        $('#meja_transaksi').change(function () { 
+            var meja = $(this).val();
+            if (meja == "NULL") {
+                $('.transaction-table-data').html('');
+                $('#total-form').val('');
+            }else{
+                show_loading();
+                $('#total-form').val('');
+                transaction_table(meja);
+            }
+            $('#cash-form').val('');
+            $('#change-form').val('');
+        });
+        $('#cash-form').keyup(function () { 
+            var uang = $(this).val();
+            if (total != 0 && uang >= total) {
+                $('#change-form').val(uang - total);
+            }else{
+                $('#change-form').val('');
+            }
+        });
+        $('#btn_bayar_transaksi').click(function (e) { 
+            show_loading();
+            var uang = $('#cash-form').val();
+            if (total != 0 && uang >= total) {
+                var meja = $('#meja_transaksi').val();
+                var kembali = $('#change-form').val();
+                var data = {meja: meja, total: total, uang: uang, kembali: kembali}
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    type: "post",
+                    url: "{{ route('transaction.store') }}",
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        $('.transaction-table-data').html('');
+                        $('#total-form').val('');
+                        $('#cash-form').val('');
+                        $('#change-form').val('');
+                        window.location.href = "{{ route('transaction.get.invoice') }}?id=" + response.id;
+                    }
+                });
+            }
+            hide_loading();
+        });
+        // TRANSACTION JS END
+        <?php endif; ?>
     </script>
 </body>
 

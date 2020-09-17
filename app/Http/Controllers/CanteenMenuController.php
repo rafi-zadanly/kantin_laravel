@@ -85,7 +85,7 @@ class CanteenMenuController extends Controller
                 'status' => $request->tersedia,
             ];
             if ($canteenMenu->update($update)) {
-                return $this->success_redirect("Berhasil mengubah pengguna dengan nama $canteenMenu->name.", $this->defaultRedirect);
+                return $this->success_redirect("Berhasil mengubah menu $canteenMenu->name.", $this->defaultRedirect);
             }else{
                 return $this->error_redirect();
             }

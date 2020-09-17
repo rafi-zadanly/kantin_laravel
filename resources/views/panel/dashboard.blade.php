@@ -44,7 +44,7 @@
         </div>
     </div>
 </div>
-<div class="row pl-3 pr-3 mt-5">
+<!-- <div class="row pl-3 pr-3 mt-5">
     <div class="col-10 offset-1 card card-dashboard shadow p-3">
         <p class="h4 text-dark">Pesanan Saat Ini</p>
         <table class="table mt-3 table-responsive-sm">
@@ -71,20 +71,8 @@
                         </button>
                     </td>
                 </tr>
-                <tr>
-                    <td scope="row">2</td>
-                    <td>1</td>
-                    <td>Es Teh Manis</td>
-                    <td>3</td>
-                    <td>1 Es nya dibanyakin</td>
-                    <td class="text-center">
-                        <button class="btn p-0 btn-order-check" order-id="2">
-                            <i class="fa fa-check-square h4 text-primary" aria-hidden="true"></i>
-                        </button>
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
-</div>
+</div> -->
 @endsection
