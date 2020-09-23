@@ -23,7 +23,7 @@
     <div class="col-7 offset-1 p-0">
         <div class="card p-3 shadow">
             <div class="row">
-                <div class="col-6">
+                <div class="col-4">
                     <div class="form-group">
                         <label for="">Nomor Meja</label>
                         <select name="meja" id="meja_transaksi" class="form-control select" style="width: 100%;">
@@ -99,8 +99,100 @@
                     </td>
                 </tr>
             </table>
-            <button class="btn btn-primary" id="btn_bayar_transaksi">Bayar</button>
+            <div class="row">
+                <div class="col-9 p-0 pl-3 pr-1">
+                    <button class="btn btn-primary w-100" id="btn_bayar_transaksi">Bayar</button>
+                </div>
+                <div class="col-3 p-0 pl-1 pr-3">
+                    <button class="btn btn-info w-100" id="btn_refresh_transaksi"><i class="fas fa-sync"></i></button>
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script type="text/javascript">
+    refresh();
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    var total = 0;
+
+    function refresh(){
+        $('#meja_transaksi').html('<option value="NULL">Loading...</option>');
+        $.get("{{ route('order.get.data') }}", function(data, status){
+            var table = '<option value="NULL">Pilih Meja</option>';
+            data.tables.forEach(el => {
+                table += '<option value="'+ el.id +'">Meja '+ el.number +'</option>';
+            });
+            $('#meja_transaksi').html(table);
+        });
+        $('.transaction-table-data').html('');
+        $('#total-form, #change-form, #cash-form').val('');
+    };
+
+    function transaction_table(meja){
+        show_loading();
+        $.get("{{ route('transaction.get.table') }}", {meja: meja}, function(data, status){
+            $('.transaction-table-data').html('');
+            data.forEach(d => {
+                var openTag = '<tr>'
+                var template = '<td scope="row">'+d.name+'</td><td>'+d.price+'</td><td>'+d.quantity+'</td><td>'+(d.price * d.quantity)+'</td>';
+                var closeTag = '</tr>'
+                $('.transaction-table-data').append(openTag + template + closeTag);
+                total = d.total;
+                $('#total-form').val(total);
+            });
+        });
+        hide_loading();
+    };
+
+    function get_transaction(){
+        var meja = $('#meja_transaksi').val();
+        if (meja == "NULL") {
+            refresh();
+        }else{
+            transaction_table(meja);
+        }
+    };
+
+    $('#meja_transaksi').change(function () { 
+        get_transaction();
+    });
+
+    $('#btn_refresh_transaksi').click(function () { 
+        refresh();
+    });
+
+    $('#cash-form').keyup(function () { 
+        var uang = $(this).val();
+        if (total != 0 && uang >= total) {
+            $('#change-form').val(uang - total);
+        }else{
+            $('#change-form').val('');
+        }
+    });
+
+    $('#btn_bayar_transaksi').click(function () { 
+        show_loading();
+        var uang = $('#cash-form').val();
+        if (total != 0 && uang >= total) {
+            var meja = $('#meja_transaksi').val();
+            var kembali = $('#change-form').val();
+            var send = {meja: meja, total: total, uang: uang, kembali: kembali}
+            $.post("{{ route('transaction.store') }}", send, function(data, status){
+                window.open("{{ route('transaction.get.invoice') }}?id=" + data.id, '_blank');
+                refresh();
+            })
+        }
+        hide_loading();
+    });
+</script>
 @endsection

@@ -126,9 +126,6 @@ class TransactionController extends Controller
 
     public function get_invoice(Request $request)
     {
-        if ($request->id == NULL){
-            return redirect()->back();
-        }
         try {
             $user_id = Transaction::find($request->id)->user_id;
             $transaction = Transaction::find($request->id);

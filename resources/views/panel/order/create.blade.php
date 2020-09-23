@@ -20,12 +20,7 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label for="">Nomor Meja</label>
-                        <select name="meja" id="meja" class="form-control select" style="width: 100%;">
-                            <option value="NULL">Pilih Meja</option>
-                            @foreach($tables as $table)
-                            <option value="{{ $table->id }}">Meja {{ $table->number }}</option>
-                            @endforeach
-                        </select>
+                        <select name="meja" id="meja" class="form-control select" style="width: 100%;"></select>
                     </div>
                 </div>
                 <div class="col-12">
@@ -40,12 +35,7 @@
                     <div class="row mt-3 order-wrapper">
                         <div class="col-4">
                             <div class="form-group">
-                                <select name="nama" id="menu" class="form-control select" style="width: 100%;">
-                                    <option value="NULL">Pilih</option>
-                                    @foreach($menus as $menu)
-                                    <option value="{{ $menu->id }}">{{ $menu->name }}</option>
-                                    @endforeach
-                                </select>
+                                <select name="nama" id="menu" class="form-control select" style="width: 100%;"></select>
                             </div>
                         </div>
                         <div class="col-3">
@@ -63,7 +53,8 @@
             </div>
             <div class="text-right">
                 <hr class="bg-dark m-0 mb-3">
-                <button class="btn btn-info text-light" id="btn_tambah_order"><i class="fa fa-plus mr-2"></i>Tambah</button>
+                <button class="btn btn-primary" id="btn_tambah_order"><i class="fa fa-plus mr-2"></i>Tambah</button>
+                <button class="btn btn-info" id="btn_refresh"><i class="fas fa-sync"></i></button>
             </div>
         </div>
     </div>
@@ -93,3 +84,95 @@
     </div>
 </div>
 @endsection
+
+@section('script')
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    function order_data(){
+        $('#meja, #menu').html('<option value="NULL">Loading...</option>');
+        $.get("{{ route('order.get.data') }}", function(data, status){
+            var table = '<option value="NULL">Pilih Meja</option>';
+            var menu = '<option value="NULL">Pilih Menu</option>';
+            data.tables.forEach(el => {
+                table += '<option value="'+ el.id +'">Meja '+ el.number +'</option>';
+            });
+            data.menus.forEach(el => {
+                menu += '<option value="'+ el.id +'">'+ el.name +'</option>';
+            });
+            $('.order-table-data').html('');
+            $('#kuantitas').val('1');
+            $('#catatan').val('');
+            $('#meja').html(table);
+            $('#menu').html(menu);
+        });
+    };
+
+    $('#btn_refresh').click(function () { 
+        order_data();
+    });
+
+    function ordered_table(meja){
+        show_loading();
+        $.get("{{ route('order.get.table') }}", {meja:meja}, function(data, status){
+            $('.order-table-data').html('');
+            data.forEach(d => {
+                var openTag = '<tr>'
+                var template = '<td scope="row">'+d.name+'</td><td>'+d.quantity+'</td><td>'+d.notes+'</td><td>'+d.status+'</td>';
+                var closeTag = '</tr>'
+                if (d.status == "proses") {
+                    template += '<td>';
+                    template += '<button class="btn btn-success btn-sm order-done" title="Selesai" value="'+ d.id +'"><i class="fa fa-check"></i></button>';
+                    template += '<button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button>';
+                    template += '</td>';
+                }else{
+                    template += '<td><button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button></td>';
+                }
+                $('.order-table-data').append(openTag + template + closeTag);
+            });
+            $('.order-done').click(function () { 
+                show_loading();
+                var id = $(this).val();
+                $.post("{{ route('order.done') }}", {id: id}, function(data, status){
+                    ordered_table($('#meja').val());
+                });
+                hide_loading();
+            });
+            $('.order-cancel').click(function () {
+                show_loading();
+                var id = $(this).val();
+                $.post("{{ route('order.cancel') }}", {id: id}, function(data, status){
+                    ordered_table($('#meja').val());
+                });
+                hide_loading();
+            });
+        });
+        hide_loading();
+    };
+
+    $('#meja').change(function () { 
+        var meja = $(this).val();
+        ordered_table(meja);
+    });
+
+    $('#btn_tambah_order').click(function () { 
+        show_loading();
+        var meja = $('#meja').val();
+        var menu = $('#menu').val();
+        var kuantitas = $('#kuantitas').val();
+        var catatan = $('#catatan').val();
+        var send = {meja: meja, menu: menu, kuantitas: kuantitas, catatan: catatan}
+        $.post("{{ route('order.store') }}", send, function(data, status){
+            ordered_table($('#meja').val());
+        });
+        hide_loading();
+    });
+    
+    order_data();
+</script>
+@endsection
+<!--  -->

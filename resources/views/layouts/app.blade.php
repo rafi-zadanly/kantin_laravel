@@ -75,13 +75,13 @@ $level = Session::get('level');
                     </a>
                 </li>
                 @endif
-                @if(in_array($level, ['admin', 'owner']))
+                <!-- @if(in_array($level, ['admin', 'owner']))
                 <li>
                     <a href="#">
                         <i class="fa fa-book sidebar-fa"></i>Laporan
                     </a>
                 </li>
-                @endif
+                @endif -->
             </ul>
         </nav>
 
@@ -132,6 +132,8 @@ $level = Session::get('level');
     <!-- jQuery Custom Scroller CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
+    @yield('script')
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#sidebar").mCustomScrollbar({
@@ -176,179 +178,6 @@ $level = Session::get('level');
                 $('.loading-overlay').addClass('d-none');
             });
         }
-        <?php if($page == "Pesanan"): ?>
-        // ORDER JS START
-        function ordered_table(meja){
-            $.ajax({
-                type: "get",
-                url: "{{ route('order.get.table') }}",
-                data: "meja="+meja,
-                dataType: "json",
-                success: function (data) {
-                    $('.order-table-data').html('');
-                    data.forEach(d => {
-                        var openTag = '<tr>'
-                        var template = '<td scope="row">'+d.name+'</td><td>'+d.quantity+'</td><td>'+d.notes+'</td><td>'+d.status+'</td>';
-                        var closeTag = '</tr>'
-                        if (d.status == "proses") {
-                            template += '<td>';
-                            template += '<button class="btn btn-success btn-sm order-done" title="Selesai" value="'+ d.id +'"><i class="fa fa-check"></i></button>';
-                            template += '<button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button>';
-                            template += '</td>';
-                        }else{
-                            template += '<td><button class="btn btn-danger btn-sm order-cancel" title="Batal" value="'+ d.id +'"><i class="fa fa-times"></i></button></td>';
-                        }
-                        $('.order-table-data').append(openTag + template + closeTag);
-                    });
-                    $('.order-done').click(function () { 
-                        show_loading();
-                        var id = $(this).val();
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-                        $.ajax({
-                            type: "post",
-                            url: "{{ route('order.done') }}",
-                            data: {id: id},
-                            dataType: "json",
-                            success: function (response) {
-                                ordered_table($('#meja').val());
-                            }
-                        });
-                        hide_loading();
-                    });
-                    $('.order-cancel').click(function () {
-                        show_loading();
-                        var id = $(this).val();
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-                        $.ajax({
-                            type: "post",
-                            url: "{{ route('order.cancel') }}",
-                            data: {id: id},
-                            dataType: "json",
-                            success: function (response) {
-                                ordered_table($('#meja').val());
-                            }
-                        });
-                        hide_loading();
-                    });
-                }
-            });
-            hide_loading();
-        };
-
-        $('#meja').change(function () { 
-            show_loading();
-            var meja = $(this).val();
-            ordered_table(meja);
-        });
-
-        $('#btn_tambah_order').click(function () { 
-            show_loading();
-            var meja = $('#meja').val();
-            var menu = $('#menu').val();
-            var kuantitas = $('#kuantitas').val();
-            var catatan = $('#catatan').val();
-            var data = {meja: meja, menu: menu, kuantitas: kuantitas, catatan: catatan}
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                type: "post",
-                url: "{{ route('order.store') }}",
-                data: data,
-                dataType: "json",
-                success: function (response) {
-                    ordered_table($('#meja').val());
-                }
-            });
-            hide_loading();
-        });
-        // ORDER JS END
-        <?php endif; ?>
-        <?php if($page == "Transaksi"): ?>
-        // TRANSACTION JS START
-        var total = 0;
-        function transaction_table(meja){
-            $.ajax({
-                type: "get",
-                url: "{{ route('transaction.get.table') }}",
-                data: "meja="+meja,
-                dataType: "json",
-                success: function (data) {
-                    $('.transaction-table-data').html('');
-                    data.forEach(d => {
-                        var openTag = '<tr>'
-                        var template = '<td scope="row">'+d.name+'</td><td>'+d.price+'</td><td>'+d.quantity+'</td><td>'+(d.price * d.quantity)+'</td>';
-                        var closeTag = '</tr>'
-                        $('.transaction-table-data').append(openTag + template + closeTag);
-                        total = d.total;
-                        $('#total-form').val(total);
-                    });
-                }
-            });
-            hide_loading();
-        };
-        $('#meja_transaksi').change(function () { 
-            var meja = $(this).val();
-            if (meja == "NULL") {
-                $('.transaction-table-data').html('');
-                $('#total-form').val('');
-            }else{
-                show_loading();
-                $('#total-form').val('');
-                transaction_table(meja);
-            }
-            $('#cash-form').val('');
-            $('#change-form').val('');
-        });
-        $('#cash-form').keyup(function () { 
-            var uang = $(this).val();
-            if (total != 0 && uang >= total) {
-                $('#change-form').val(uang - total);
-            }else{
-                $('#change-form').val('');
-            }
-        });
-        $('#btn_bayar_transaksi').click(function (e) { 
-            show_loading();
-            var uang = $('#cash-form').val();
-            if (total != 0 && uang >= total) {
-                var meja = $('#meja_transaksi').val();
-                var kembali = $('#change-form').val();
-                var data = {meja: meja, total: total, uang: uang, kembali: kembali}
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    type: "post",
-                    url: "{{ route('transaction.store') }}",
-                    data: data,
-                    dataType: "json",
-                    success: function (response) {
-                        $('.transaction-table-data').html('');
-                        $('#total-form').val('');
-                        $('#cash-form').val('');
-                        $('#change-form').val('');
-                        // window.location.href = "{{ route('transaction.get.invoice') }}?id=" + response.id;
-                        window.open("{{ route('transaction.get.invoice') }}?id=" + response.id, '_blank');
-                    }
-                });
-            }
-            hide_loading();
-        });
-        // TRANSACTION JS END
-        <?php endif; ?>
     </script>
 </body>
 

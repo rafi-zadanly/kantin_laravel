@@ -19,6 +19,7 @@ Route::middleware('is.online')->group(function(){
     Route::resource('/transaction', 'TransactionController')->middleware('is.admin.cashier');
     
     Route::get('/order/get/table', 'OrderController@get_table_ordered')->name('order.get.table')->middleware('is.admin.waiter');
+    Route::get('/order/get/data', 'OrderController@create_data')->name('order.get.data')->middleware('is.admin.waiter');
     Route::post('/order/done', 'OrderController@order_done')->name('order.done')->middleware('is.admin.waiter');
     Route::post('/order/cancel', 'OrderController@order_cancel')->name('order.cancel')->middleware('is.admin.waiter');
 

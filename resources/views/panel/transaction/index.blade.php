@@ -36,9 +36,9 @@
                         <td scope="row">{{ $i }}</td>
                         <td>{{ $trs->date }}</td>
                         <td>Meja {{ $tables[$i-1]->number }}</td>
-                        <td>{{ $trs->total != NULL ? 'Rp. '. number_format($trs->total,0,',','.') : '' }}</td>
-                        <td>{{ $trs->cash != NULL ? 'Rp. '. number_format($trs->cash,0,',','.') : '' }}</td>
-                        <td>{{ $trs->change != NULL || $trs->change == 0 ? 'Rp. '. number_format($trs->change,0,',','.') : '' }}</td>
+                        <td>Rp. {{ number_format($trs->total,0,',','.') }}</td>
+                        <td>Rp. {{ number_format($trs->cash,0,',','.') }}</td>
+                        <td>Rp. {{ number_format($trs->change,0,',','.') }}</td>
                         <td class="text-center">
                             @if($trs->status == "paid")
                             <div class="bg-success rounded mr-3 w-100 text-light text-center">

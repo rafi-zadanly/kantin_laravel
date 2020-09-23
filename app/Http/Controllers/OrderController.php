@@ -17,31 +17,44 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $order = Order::orderBy('status', 'asc')->get();
-        $user = $this->get_user($order);
-        $menu = $this->get_menu($order);
-        $transaction = $this->get_transaction($order);
-        $table = $this->get_table($transaction);
+        $order = DB::table('orders')
+            ->join('canteen_menus', 'canteen_menus.id', '=', 'orders.canteen_menu_id')
+            ->join('transactions', 'transactions.id', '=', 'orders.transaction_id')
+            ->join('tables', 'tables.id', '=', 'transactions.table_id')
+            ->orderBy('orders.status', 'asc')
+            ->select(
+                'orders.id',
+                'orders.quantity', 
+                'orders.total', 
+                'orders.notes',
+                'orders.status',
+                'canteen_menus.name', 
+                'canteen_menus.price',  
+                'tables.number'
+            )->get();
 
         $data = [
             'page' => 'Pesanan',
             'orders' => $order,
-            'user' => $user,
-            'menu' => $menu,
-            'table' => $table,
-            'transaction' => $transaction,
         ];
+
         return view('panel.order.index', $data);
+    }
+
+    public function create_data(){
+        $menu = CanteenMenu::where('status', 'available')->orderBy('name', 'asc')->get();
+        $table = Table::orderBy('number', 'asc')->get();
+        $data = [
+            'menus' => $menu,
+            'tables' => $table,
+        ];
+        return response()->json($data);
     }
 
     public function create()
     {
-        $menu = CanteenMenu::where('status', 'available')->orderBy('name', 'asc')->get();
-        $table = Table::all();
         $data = [
             'page' => 'Pesanan',
-            'menus' => $menu,
-            'tables' => $table,
         ];
         return view('panel.order.create', $data);
     }
@@ -109,42 +122,6 @@ class OrderController extends Controller
     public function store_session()
     {
 
-    }
-
-    public function get_user($array)
-    {
-        $data = [];
-        foreach ($array as $d) {
-            $data[] = User::find($d->user_id);
-        }
-        return $data;
-    }
-
-    public function get_menu($array)
-    {
-        $data = [];
-        foreach ($array as $d) {
-            $data[] = CanteenMenu::find($d->canteen_menu_id);
-        }
-        return $data;
-    }
-
-    public function get_transaction($array)
-    {
-        $data = [];
-        foreach ($array as $d) {
-            $data[] = Transaction::find($d->transaction_id);
-        }
-        return $data;
-    }
-
-    public function get_table($array)
-    {
-        $data = [];
-        foreach ($array as $d) {
-            $data[] = Table::find($d->table_id);
-        }
-        return $data;
     }
 
     public function get_table_ordered(Request $request)

@@ -35,12 +35,12 @@
                     @foreach($orders as $order)
                     <tr>
                         <td scope="row">{{ $i }}</td>
-                        <td>{{ $menu[$i-1]->name }}</td>
-                        <td>Rp. {{ number_format($menu[$i-1]->price,0,',','.') }}</td>
+                        <td>{{ $order->name }}</td>
+                        <td>Rp. {{ number_format($order->price,0,',','.') }}</td>
                         <td>{{ $order->quantity }}</td>
                         <td>Rp. {{ number_format($order->total,0,',','.') }}</td>
                         <td>{{ $order->notes }}</td>
-                        <td>{{ $table[$i-1]->number }}</td>
+                        <td>Meja {{ $order->number }}</td>
                         <td class="text-center">
                             @if($order->status == "selesai")
                             <div class="bg-success rounded mr-3 w-100 text-light text-center">

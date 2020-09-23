@@ -18,12 +18,10 @@
 	</style>
 	<center><h3>Starbhak Kantin</h3></center>
 	<hr class="bg-dark">
-	<p>Tanggal : {{ date('d-m-Y', strtotime($date)) }}</p>
-	<p>Jam : {{ date('H:i:s', strtotime($date)) }}</p>
+	<p>Waktu : {{ date('d-m-Y H:i:s') }}</p>
 	<p>Kasir : {{ $user }}</p>
-	<br>
 
-	<table class='table table-bordered'>
+	<table class='table table-bordered mt-3'>
 		<thead>
 			<tr>
                 <th>Nama Pesanan</th>
